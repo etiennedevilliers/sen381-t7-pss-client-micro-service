@@ -1,0 +1,2 @@
+docker build . -t etiennedv/pss-client-satisfaction   
+docker run -p 3000:3000 etiennedv/pss-client-satisfaction
