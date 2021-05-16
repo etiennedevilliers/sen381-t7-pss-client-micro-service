@@ -10,7 +10,7 @@ class SimpleSQLController {
         this.config = {
             user : 'app',
             password: 'HAA4h5X$v^CHW5UeNucQf7',
-            server: '45.220.29.247',
+            server: '102.141.186.56',
             port : 25565,
             database: 'pss',
             encrypt: false
@@ -67,8 +67,50 @@ class SimpleSQLController {
                 }
             );
         });
+    }
 
-        
+    async checkCredentials(username, password, req, res) {
+        var sql = require("mssql");
+        var config = this.config;
+        var username = username;
+        var password = password;
+        var req = req;
+        var res = res;
+
+        var queryCheck = `SELECT password, AgentID FROM Agent WHERE username = '${username}'`;
+        console.log(queryCheck);
+
+        await sql.connect(config, function (err) {
+            if (err) console.log(err);
+
+            var requestUpdateRequest = new sql.Request();
+            requestUpdateRequest.query(
+                queryCheck, 
+                function (err, recordset) {
+                    if (err) console.log(err);
+
+                    console.log(recordset)
+                    if (recordset.recordset.length > 0){
+                        if (recordset.recordset[0].password === password) {
+                            res.send({
+                                "auth" : recordset.recordset[0].password === password,
+                                "AgentID" : recordset.recordset[0].AgentID
+                            }); 
+                        } else {
+                            res.send({
+                                "auth" : recordset.recordset[0].password === password,
+                            }); 
+                        }
+                         
+                    } else {
+                        res.send({
+                            "auth" : 'false'
+                        });  
+                    }
+                        
+                }
+            );
+        });
 
     }
 
@@ -147,7 +189,7 @@ app.get('/ComplaintRequests', (req, res) => {
 });
 
 app.get('/CallCentreAgents', (req, res) => {
-    const sqlQuery = 'SELECT * FROM Agent WHERE employeeType = \'ClientSatisfaction\'';
+    const sqlQuery = 'SELECT AgentID, aName, contactNum, employmentStatus, employeeType FROM Agent WHERE employeeType = \'ClientSatisfaction\'';
 
     var simpleSQL = new SimpleSQLController();
 
@@ -168,6 +210,15 @@ app.post('/ResolveComplaintRequest', (req, res) => {
         req,
         res
     );
+});
+
+app.get('/CheckCredentials', (req, res) => {
+    const username = req.headers.username;
+    const password = req.headers.password;
+
+    var simpleSQL = new SimpleSQLController();
+
+    simpleSQL.checkCredentials(username, password, req, res);
 });
 
 app.post('/InsertCallLog', (req, res) => {
