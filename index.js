@@ -10,7 +10,7 @@ class SimpleSQLController {
         this.config = {
             user : 'app',
             password: 'HAA4h5X$v^CHW5UeNucQf7',
-            server: '102.141.186.56',
+            server: '102.141.191.13',
             port : 25565,
             database: 'pss',
             encrypt: false
